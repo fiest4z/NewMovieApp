@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../models/omdb_movie.dart';
+import '../models/tmdb_movie.dart';
 import '../models/movie.dart';
-import '../services/omdb_service.dart';
+import '../services/tmdb_service.dart';
 import '../widgets/movie_search_result_card.dart';
 
 class MovieSearchScreen extends StatefulWidget {
@@ -17,9 +17,9 @@ class MovieSearchScreen extends StatefulWidget {
 }
 
 class _MovieSearchScreenState extends State<MovieSearchScreen> {
-  final OmdbService _omdbService = OmdbService();
+  final TmdbService _tmdbService = TmdbService();
   final TextEditingController _searchController = TextEditingController();
-  List<OmdbMovie> _searchResults = [];
+  List<TmdbMovie> _searchResults = [];
   bool _isLoading = false;
   String _errorMessage = '';
   String _currentQuery = '';
@@ -46,7 +46,8 @@ class _MovieSearchScreenState extends State<MovieSearchScreen> {
     });
 
     try {
-      final results = await _omdbService.searchMovies(query);
+      // Поиск на русском языке по умолчанию
+      final results = await _tmdbService.searchMovies(query, language: 'ru-RU');
       setState(() {
         _searchResults = results;
         _isLoading = false;
@@ -60,19 +61,19 @@ class _MovieSearchScreenState extends State<MovieSearchScreen> {
     }
   }
 
-  void _selectMovie(OmdbMovie omdbMovie) {
+  void _selectMovie(TmdbMovie tmdbMovie) {
     final movie = Movie(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
-      title: omdbMovie.title,
-      description: omdbMovie.plot,
-      year: omdbMovie.yearInt,
-      rating: omdbMovie.ratingDouble != null
-          ? (omdbMovie.ratingDouble! / 2) // Конвертируем из 10-балльной в 5-балльную
+      title: tmdbMovie.title,
+      description: tmdbMovie.overview,
+      year: tmdbMovie.year,
+      rating: tmdbMovie.voteAverage != null
+          ? (tmdbMovie.voteAverage! / 2) // Конвертируем из 10-балльной в 5-балльную
           : null,
-      genre: omdbMovie.genre,
-      posterUrl: omdbMovie.posterUrl,
-      tmdbId: int.tryParse(omdbMovie.imdbID.replaceAll('tt', '')),
-      genres: omdbMovie.genre?.split(', '),
+      genre: tmdbMovie.genresString,
+      posterUrl: tmdbMovie.posterUrl,
+      tmdbId: tmdbMovie.id,
+      genres: tmdbMovie.genres?.map((g) => g['name'] as String).toList(),
       dateAdded: DateTime.now(),
     );
 
@@ -92,7 +93,7 @@ class _MovieSearchScreenState extends State<MovieSearchScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Введите название фильма...',
+                hintText: 'Введите название фильма (на любом языке)...',
                 prefixIcon: const Icon(Icons.search),
                 suffixIcon: _searchController.text.isNotEmpty
                     ? IconButton(
@@ -143,9 +144,20 @@ class _MovieSearchScreenState extends State<MovieSearchScreen> {
               color: Colors.red[300],
             ),
             const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Text(
+                _errorMessage,
+                style: Theme.of(context).textTheme.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
             Text(
-              _errorMessage,
-              style: Theme.of(context).textTheme.bodyLarge,
+              'Убедитесь, что TMDB API ключ настроен правильно',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Colors.grey[600],
+                  ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 16),
@@ -177,7 +189,7 @@ class _MovieSearchScreenState extends State<MovieSearchScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Введите название фильма в поле поиска',
+              'Введите название фильма на русском или английском',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Colors.grey[500],
                   ),

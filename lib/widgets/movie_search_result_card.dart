@@ -1,9 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import '../models/omdb_movie.dart';
+import '../models/tmdb_movie.dart';
 
 class MovieSearchResultCard extends StatelessWidget {
-  final OmdbMovie movie;
+  final TmdbMovie movie;
   final VoidCallback onTap;
 
   const MovieSearchResultCard({
@@ -68,19 +68,31 @@ class MovieSearchResultCard extends StatelessWidget {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
+                    if (movie.originalTitle != null && movie.originalTitle != movie.title) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        movie.originalTitle!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.grey[500],
+                              fontStyle: FontStyle.italic,
+                            ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                     if (movie.year != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        movie.year!,
+                        movie.year.toString(),
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[600],
                             ),
                       ),
                     ],
-                    if (movie.genre != null && movie.genre != 'N/A') ...[
+                    if (movie.genresString != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        movie.genre!,
+                        movie.genresString!,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Colors.grey[600],
                             ),
@@ -88,7 +100,7 @@ class MovieSearchResultCard extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    if (movie.ratingDouble != null) ...[
+                    if (movie.voteAverage != null && movie.voteAverage! > 0) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: [
@@ -99,7 +111,7 @@ class MovieSearchResultCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${movie.ratingDouble!.toStringAsFixed(1)}/10',
+                            '${movie.voteAverage!.toStringAsFixed(1)}/10',
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                                   color: Colors.grey[600],
                                 ),
@@ -107,10 +119,10 @@ class MovieSearchResultCard extends StatelessWidget {
                         ],
                       ),
                     ],
-                    if (movie.plot != null && movie.plot != 'N/A' && movie.plot!.isNotEmpty) ...[
+                    if (movie.overview != null && movie.overview!.isNotEmpty) ...[
                       const SizedBox(height: 8),
                       Text(
-                        movie.plot!,
+                        movie.overview!,
                         style: Theme.of(context).textTheme.bodySmall,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,

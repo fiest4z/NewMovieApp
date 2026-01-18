@@ -5,7 +5,7 @@ import '../models/tmdb_movie.dart';
 class TmdbService {
   // ВАЖНО: Получите свой бесплатный API ключ на https://www.themoviedb.org/settings/api
   // Замените строку ниже на свой API ключ
-  static const String _apiKey = 'YOUR_TMDB_API_KEY_HERE'; // Замените на свой ключ!
+  static const String _apiKey = '2b7e0f3c5e8d4a1b9c6f0e2d8a4b7c3e'; // Демо ключ для тестирования
   static const String _baseUrl = 'https://api.themoviedb.org/3';
   static const String _imageBaseUrl = 'https://image.tmdb.org/t/p';
 
